@@ -1,0 +1,9 @@
+- name: 'kadoc'
+  description: 'KADOC'
+  inst_code: 'KADOC'
+  storages:
+    uploads:
+      protocol: 'NFS'
+      is_upload: true
+      values:
+        location: '/nas/vol04/upload/kadoc'

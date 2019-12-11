@@ -10,6 +10,7 @@ class IngestServer < Roda
   plugin :empty_root
   plugin :heartbeat, path: '/status'
   plugin :json
+  plugin :rodauth
 
   route do |r|
   end

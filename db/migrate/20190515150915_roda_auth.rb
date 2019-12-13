@@ -15,6 +15,7 @@ class RodaAuth < ActiveRecord::Migration[5.2]
       t.index :email, unique: true, where: 'status_id IN (1, 2)'
     end
 
+=begin
     # Used by the password reset feature
     create_table :account_password_reset_keys, primary_key: false do |t|
       t.references :accounts, foreign_key: :id
@@ -142,6 +143,7 @@ class RodaAuth < ActiveRecord::Migration[5.2]
       t.string :code
       t.datetime :code_issued_at, null: false, default: -> { 'CURRENT_TIMESTAMP' }
     end
+=end
 
   end
 

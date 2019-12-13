@@ -5,17 +5,13 @@ default: &default
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 
   data_schema: teneo
-  pwd_schema: teneo_password
-  schema_search_path: teneo, teneo_password, public
+  schema_search_path: teneo, public
 
   username: teneo
   password: teneo
 
   dba_name: teneo_dba
   dba_pass: teneo_dba
-
-  pwd_name: teneo_password
-  pwd_pass: teneo_password
 
   migrations_paths:
     - <%= Teneo::DataModel.migrations_path %>
@@ -31,7 +27,7 @@ test:
   <<: *default
   host: localhost
   port: 5432
-  database: ingester_test
+  database: teneo_test
 
 production:
   <<: *default

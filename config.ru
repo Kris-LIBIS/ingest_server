@@ -3,6 +3,6 @@ require 'dotenv'
 #noinspection RubyArgCount
 Dotenv.load
 
-require './ingest_server'
+require_relative 'config/environment'
 
-run IngestServer.freeze.app
+run Teneo::IngestServer::App.app

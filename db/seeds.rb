@@ -1,8 +1,9 @@
 # frozen_string_literal: true
-require 'teneo-data_model'
-require 'teneo-ingester'
 
-ON_TTY=true
+require 'teneo-ingest_server'
+require 'bcrypt'
+
+ON_TTY = false
 # dir = File.join Teneo::DataModel.root, 'db', 'seeds'
 # Teneo::DataModel::SeedLoader.new(dir)
 dir = File.join Teneo::Ingester::ROOT_DIR, 'db', 'seeds'
@@ -20,5 +21,9 @@ Teneo::DataModel::SeedLoader.new(dir, tty: ON_TTY)
 dir = File.join __dir__, 'seeds', 'kadoc'
 Teneo::DataModel::SeedLoader.new(dir, tty: ON_TTY)
 
-LoginUser.update_or_create({email: 'admin@libis.be'}, {password: 'abc123', password_confirmation: 'abc123'})
-LoginUser.update_or_create({email: 'teneo@libis.be'}, {password: '123abc', password_confirmation: '126abc'})
+Teneo::IngestServer::AccountStatus.create_with(name: 'Undefined').find_or_create_by(id: 1)
+Teneo::IngestServer::AccountStatus.create_with(name: 'Verified').find_or_create_by(id: 2)
+Teneo::IngestServer::AccountStatus.create_with(name: 'Closed').find_or_create_by(id: 3)
+
+Teneo::IngestServer::Account.create_with(password_hash: BCrypt::Password.create('abc123')).find_or_create_by(email: 'admin@libis.be')
+Teneo::IngestServer::Account.create_with(password_hash: BCrypt::Password.create('123abc')).find_or_create_by(email: 'teneo@libis.be')

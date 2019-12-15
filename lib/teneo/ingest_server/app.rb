@@ -10,18 +10,26 @@ module Teneo
 
     class App < Roda
 
+      key = File.read(File.join(Teneo::IngestServer::ROOT_DIR, 'key.bin'), mode: 'rb')
+
+      use Rack::Session::Cookie, secret: key
+
       Teneo::IngestServer::Database.instance
       plugin :public, root: 'static'
       plugin :empty_root
       plugin :heartbeat, path: '/status'
       plugin :json
+      plugin :json_parser
+      #plugin :sessions, secret: key
+      #plugin :flash
+      #noinspection RubyResolve
       plugin :rodauth, csrf: false, json: :only do
-        enable :login, :logout, :jwt
+        enable :http_basic_auth
+        login_column :email_id
         account_password_hash_column :password_hash
         use_database_authentication_functions? false
-        jwt_secret 'Teneo'
-        #noinspection RubyResolve
-        jwt_symbolize_deeply? true
+        #default_redirect '/api/user'
+        require_http_basic_auth true
       end
 
       route do |r|
@@ -31,11 +39,10 @@ module Teneo
 
           def current_user
             account = Teneo::IngestServer::Account.find(rodauth.session[:account_id])
-            Teneo::DataModel::User.find_by(email: account.email)
+            account.user
           end
 
           r.get 'user' do
-            ap rodauth.session
             { first_name: current_user.first_name, last_name: current_user.last_name, email: current_user.email }
           end
 

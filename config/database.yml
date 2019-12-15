@@ -15,7 +15,9 @@ default: &default
 
   migrations_paths:
     - <%= Teneo::DataModel.migrations_path %>
-    - "db/migrate"
+    - 'db/migrate'
+
+  dba_migrations_paths: <%= Teneo::DataModel.dba_migrations_path %>
 
 development:
   <<: *default

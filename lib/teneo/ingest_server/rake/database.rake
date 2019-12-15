@@ -3,6 +3,5 @@
 namespace :teneo do
   namespace :db do
 
-
   end
 end

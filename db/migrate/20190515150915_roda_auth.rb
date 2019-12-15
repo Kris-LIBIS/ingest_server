@@ -4,13 +4,15 @@ class RodaAuth < ActiveRecord::Migration[5.2]
 
   def change
 
+    #enable_extension("citext") unless extensions.include?('citext')
+
     create_table :account_statuses do |t|
       t.string :name, null: false, index: {unique: true}
     end
 
     create_table :accounts do |t|
-      t.references :status_id, index: true, foreign_key: {to_table: :account_statuses}
-      t.string :email, null: false
+      t.references :status, index: true, null: false, foreign_key: {to_table: :account_statuses}, default: 2
+      t.references :email, type: :citext, index: true, foreign_key: {to_table: :users, primary_key: :email}, null: false
       t.string :password_hash, null: false
     end
 

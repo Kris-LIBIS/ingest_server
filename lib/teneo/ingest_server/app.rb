@@ -14,32 +14,22 @@ module Teneo
 
       use Rack::Session::Cookie, secret: key
 
-      Teneo::IngestServer::Database.instance
       plugin :public, root: 'static'
       plugin :empty_root
       plugin :heartbeat, path: '/status'
       plugin :json
       plugin :json_parser
-      #plugin :sessions, secret: key
-      #plugin :flash
-      #noinspection RubyResolve
-      plugin :rodauth, csrf: false, json: :only do
-        enable :http_basic_auth
-        login_column :email_id
-        account_password_hash_column :password_hash
-        use_database_authentication_functions? false
-        #default_redirect '/api/user'
-        require_http_basic_auth true
-      end
 
       route do |r|
-        r.rodauth
         r.on 'api' do
-          rodauth.require_authentication
+
+          r.post 'login' do
+
+          end
 
           def current_user
-            account = Teneo::IngestServer::Account.find(rodauth.session[:account_id])
-            account.user
+            #account = Teneo::IngestServer::Account.find(rodauth.session[:account_id])
+            #account.user
           end
 
           r.get 'user' do

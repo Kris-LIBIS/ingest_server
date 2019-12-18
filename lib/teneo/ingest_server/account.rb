@@ -17,7 +17,8 @@ module Teneo
       belongs_to :user, foreign_key: 'email_id', class_name: 'Teneo::DataModel::User', primary_key: 'email'
 
       def self.authenticate(email, password)
-        find_by(email_id: email)&.authenticate(password)
+        puts "Account#authenticate # email: #{email}"
+        self.find_by(email_id: email)&.authenticate(password)
       end
 
       def password=(password)

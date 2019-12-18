@@ -6,4 +6,4 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'teneo-ingest_server'
 
 #noinspection RubyResolve
-Dir.glob('initializers/*.rb').each { |f| require_relative f }
+Dir[File.join(File.expand_path('initializers', __dir__), '*.rb')].each { |f| require f }

@@ -19,11 +19,17 @@ module Teneo
       plugin :heartbeat, path: '/status'
       plugin :json
       plugin :json_parser
+      plugin :all_verbs
+      plugin :cookies, http_only: true, same_site: :strict
 
       route do |r|
         r.on 'api' do
 
           r.post 'login' do
+
+          end
+
+          r.delete 'logout' do
 
           end
 

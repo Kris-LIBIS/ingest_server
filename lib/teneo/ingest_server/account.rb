@@ -22,7 +22,6 @@ module Teneo
 
       def password=(password)
         self.password_hash = BCrypt::Password.create(password)
-        self.save!
       end
 
       def password
@@ -42,11 +41,18 @@ module Teneo
       end
 
       def on_jwt_dispatch(token, payload)
-        token[:jit] = self.jit = SecureRandom.base64(18)
+        payload[:jit] = self.jit = SecureRandom.base64(18)
         save!
       end
 
-      def
+      def self.jwt_revoked?(payload, user)
+        user.jit != payload[:jit]
+      end
+
+      def self.revoke_jwt(payload, user)
+        user.jit = nil if user.jit == payload[:jit]
+        user.save!
+      end
 
     end
   end

@@ -10,8 +10,6 @@ class Authentication < ActiveRecord::Migration[5.2]
       t.string :jit, null: true, limit: 24
     end
 
-    create_table :jwt_blacklist
-
   end
 
 end

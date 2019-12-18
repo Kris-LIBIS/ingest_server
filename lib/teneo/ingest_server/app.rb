@@ -16,7 +16,6 @@ module Teneo
 
       plugin :public, root: 'static'
       plugin :empty_root
-      plugin :multi_route
       plugin :heartbeat, path: '/status'
       plugin :json
       plugin :json_parser
@@ -28,8 +27,6 @@ module Teneo
              key: 'teneo.ingester'
 
       route do |r|
-        require_relative 'apps/user'
-        require_relative 'apps/organization'
 
         r.on 'api' do
 
@@ -46,6 +43,7 @@ module Teneo
             }
           end
 
+          # @return [Teneoo::IngestServer::Accout]
           def current_user
             @current_user ||= Teneo::DataModel::User.find_by(uuid: session[:user_id])
           end
@@ -61,14 +59,78 @@ module Teneo
           r.halt(401) unless current_user
 
           r.on 'user' do
-            r.route 'user'
+
+            r.is do
+              { first_name: current_user.first_name, last_name: current_user.last_name, email: current_user.email }
+            end
+
           end
 
           r.on 'organizations' do
-            r.route 'organizations'
+
+            user_orgs = current_user.member_organizations
+
+            r.is do
+              user_orgs.each_with_object([]) do |(org, roles), arr|
+                arr << {
+                    id: org.id,
+                    name: org.name,
+                    roles: roles
+                }
+              end
+            end
+
+            r.get Integer do |id|
+              r.halt(401) unless (org = user_orgs.keys.find { |o| o.id == id })
+              session[:org_id] = org.id
+              {
+                  name: org.name,
+                  description: org.description,
+                  code: org.inst_code
+              }
+            end
+
+          end
+
+          # @return [Teneo::DataModel::Organization]
+          def current_organization
+            @current_organization ||= Teneo::DataModel::Organization.find_by(id: session[:org_id])
+          end
+
+          r.on 'ingest_agreements' do
+
+            org_agreements = current_organization&.ingest_agreements
+
+            r.is do
+              org_agreements.each_with_object([]) do |agr, arr|
+                arr << {
+                    id: agr.id,
+                    name: agr.name,
+                    description: agr.description,
+                }
+              end
+            end
+
+            r.get Integer do |id|
+              r.halt(401) unless (agr = org_agreements.find_by(id: id))
+              session[:agr_id] = agr.id
+              {
+                  id: agr.id,
+                  name: agr.name,
+                  description: agr.description,
+                  project_name: agr.project_name,
+                  collection_name: agr.collection_name,
+                  collection_description: agr.collection_description,
+                  contact_ingest: agr.contact_ingest,
+                  contact_collection: agr.contact_collection,
+                  contact_system: agr.contact_system,
+              }
+            end
+
           end
 
         end
+
       end
 
     end

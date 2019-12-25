@@ -4,7 +4,7 @@ class QueueManagement < ActiveRecord::Migration[5.2]
 
   def change
 
-    create_table :job_statuses do |t|
+    create_table :work_statuses do |t|
       t.string :name, null: false
       t.string :description
     end
@@ -21,11 +21,11 @@ class QueueManagement < ActiveRecord::Migration[5.2]
       t.timestamps default: -> { 'CURRENT_TIMESTAMP' }
     end
 
-    create_table :jobs do |t|
+    create_table :works do |t|
       t.references :queue, foreign_key: true, null: false
       t.integer :priority, limit: 2, null: false
       t.column :data, :jsonb, default: '{}'
-      t.references :job_status, foreign_key: true, null: false
+      t.references :work_status, foreign_key: true, null: false
       t.references :worker, foreign_key: true, null: true
       t.timestamps default: -> { 'CURRENT_TIMESTAMP' }
       t.column :lock_version, :integer, null: false, default: 0

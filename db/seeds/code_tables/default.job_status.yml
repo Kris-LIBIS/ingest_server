@@ -1,8 +1,0 @@
-- name: 'new'
-  description: 'Job has been submitted, but not yet processed.'
-- name: 'running'
-  description: 'Job is currently being processed.'
-- name: 'done'
-  description: 'Job finished processing successfully.'
-- name: 'failed'
-  description: 'Job has been processed, but failed.'

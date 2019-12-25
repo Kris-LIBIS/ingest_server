@@ -2,8 +2,8 @@
 
 module Teneo
   module IngestServer
-    class JobStatus < DataModel::Base
-      has_many :jobs
+    class WorkStatus < DataModel::Base
+      has_many :works
     end
   end
 end

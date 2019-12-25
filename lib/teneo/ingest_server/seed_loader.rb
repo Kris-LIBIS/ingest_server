@@ -7,7 +7,8 @@ module Teneo
 
       def load
         super
-        load_data :job_status
+        load_data :work_status
+        load_data :queue
       end
 
       def string_to_class(klass_name)

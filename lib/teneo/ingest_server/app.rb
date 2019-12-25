@@ -85,22 +85,30 @@ module Teneo
               end
             end
 
-            r.get Integer do |id|
-              r.halt(404) unless (org = user_orgs.keys.find { |o| o.id == id })
-              {
-                  name: org.name,
-                  description: org.description,
-                  code: org.inst_code
-              }
-            end
+            r.on Integer do |id|
+              org = user_orgs.keys.find { |o| o.id == id }
+              r.halt(404) unless org
 
-            r.put 'select' do
-              r.halt(401) unless (org = user_orgs.keys.find { |o| o.id == r.params['id'] })
-              session[:org_id] = org.id
-              {
-                  id: org.id,
-                  name: org.name,
-              }
+              r.get do
+                {
+                    name: org.name,
+                    description: org.description,
+                    code: org.inst_code
+                }
+              end
+
+              r.post do
+                case r.params['action']
+                when 'select'
+                  session[:org_id] = org.id
+                  {
+                      id: org.id,
+                      name: org.name,
+                  }
+                else
+                  r.halt(400)
+                end
+              end
             end
 
           end
@@ -126,27 +134,36 @@ module Teneo
               end
             end
 
-            r.get Integer do |id|
-              r.halt(404) unless (agr = org_agreements.find_by(id: id))
-              {
-                  name: agr.name,
-                  description: agr.description,
-                  project_name: agr.project_name,
-                  collection_name: agr.collection_name,
-                  collection_description: agr.collection_description,
-                  contact_ingest: agr.contact_ingest,
-                  contact_collection: agr.contact_collection,
-                  contact_system: agr.contact_system,
-              }
-            end
+            r.on Integer do |id|
+              agr = org_agreements.find_by(id: id)
+              r.halt(404) unless agr
 
-            r.put 'select' do
-              r.halt(401) unless (agr = org_agreements.find_by(id: r.params['id']))
-              session[:agr_id] = agr.id
-              {
-                  id: agr.id,
-                  name: agr.name,
-              }
+              r.get do
+                {
+                    name: agr.name,
+                    description: agr.description,
+                    project_name: agr.project_name,
+                    collection_name: agr.collection_name,
+                    collection_description: agr.collection_description,
+                    contact_ingest: agr.contact_ingest,
+                    contact_collection: agr.contact_collection,
+                    contact_system: agr.contact_system,
+                }
+              end
+
+              r.post do
+                case (r.params['action'])
+                when 'select'
+                  session[:agr_id] = agr.id
+                  {
+                      id: agr.id,
+                      name: agr.name,
+                  }
+                else
+                  r.halt(400)
+                end
+              end
+
             end
 
           end
@@ -175,20 +192,25 @@ module Teneo
 
             end
 
-            r.get Integer do |id|
-              r.halt(404) unless (workflow = Teneo::DataModel::IngestWorkflow.find_by(id: id))
-              {
-                  name: workflows.name,
-                  description: workflow.description,
-                  stages: workflow.ingest_stages.each_with_object({}) do |stage, hash|
-                    hash[stage.name] = {
-                        id: stage.id,
-                        autorun: stage.autorun,
-                        name: stage.stage_workflow.name,
-                        description: stage.stage_workflow.description
-                    }
-                  end
-              }
+            r.on Integer do |id|
+              workflow = Teneo::DataModel::IngestWorkflow.find_by(id: id)
+              r.halt(404) unless workflow
+
+              r.get do
+                {
+                    name: workflows.name,
+                    description: workflow.description,
+                    stages: workflow.ingest_stages.each_with_object({}) do |stage, hash|
+                      hash[stage.name] = {
+                          id: stage.id,
+                          autorun: stage.autorun,
+                          name: stage.stage_workflow.name,
+                          description: stage.stage_workflow.description
+                      }
+                    end
+                }
+              end
+
             end
           end
 
@@ -213,27 +235,47 @@ module Teneo
               end
             end
 
-            r.get Integer do |id|
-              r.halt(404) unless (package = packages.find_by(id: id))
-              {
-                  id: package.id,
-                  name: package.name,
-                  workflow: {
-                      id: package.ingest_workflow.id,
-                      name: package.ingest_workflow.name
-                  },
-                  options: package.options,
-              }
+            r.on Integer do |id|
+              package = packages.find_by(id: id)
+              r.halt(404) unless package
+
+              r.get do
+                {
+                    id: package.id,
+                    name: package.name,
+                    workflow: {
+                        id: package.ingest_workflow.id,
+                        name: package.ingest_workflow.name
+                    },
+                    options: package.options,
+                }
+              end
+
+              r.post do
+                case r.params['action']
+                when 'select'
+                  session[:package_id] = package.id
+                  {
+                      id: package.id,
+                      name: package.name,
+                  }
+                when 'start'
+                  queue = Teneo::IngestServer::Queue.find_by(id: r.params['queue_id'])
+                  queue ||= Teneo::IngestServer::Queue.find_by(name: r.params['queue_name'])
+                  priority = r.params['priority'] || 100
+                  r.halt(412) unless queue
+                  work = Teneo::IngestServer::Work.from_hash(queue_id: queue.id, priority: priority, data: {package: package.id}, work_status_id: 1)
+                  {
+                      work_id: work.id,
+                      package_id: package.id,
+                      action: 'start'
+                  }
+                else
+                  r.halt(400)
+                end
+              end
             end
 
-            r.put 'select' do
-              r.halt(401) unless (package = packages.find_by(id: r.params['id']))
-              session[:package_id] = package.id
-              {
-                  id: package.id,
-                  name: package.name,
-              }
-            end
 
           end
 

@@ -3,7 +3,7 @@
 module Teneo
   module IngestServer
     class Worker < DataModel::Base
-      has_many :jobs
+      has_many :works
     end
   end
 end

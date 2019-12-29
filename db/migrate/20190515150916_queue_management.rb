@@ -24,7 +24,8 @@ class QueueManagement < ActiveRecord::Migration[5.2]
     create_table :works do |t|
       t.references :queue, foreign_key: true, null: false
       t.integer :priority, limit: 2, null: false
-      t.column :data, :jsonb, default: '{}'
+      t.references :subject, polymorphic: true
+      t.string :action, null: false
       t.references :work_status, foreign_key: true, null: false
       t.references :worker, foreign_key: true, null: true
       t.timestamps default: -> { 'CURRENT_TIMESTAMP' }

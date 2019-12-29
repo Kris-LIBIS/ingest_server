@@ -180,16 +180,12 @@ module Teneo
             workflows = current_agreement.ingest_workflows
 
             r.is do
-
-              r.get do
-                workflows.map do |workflow|
-                  {
-                      id: workflow.id,
-                      name: workflow.name
-                  }
-                end
+              workflows.map do |workflow|
+                {
+                    id: workflow.id,
+                    name: workflow.name
+                }
               end
-
             end
 
             r.on Integer do |id|
@@ -219,19 +215,12 @@ module Teneo
             packages = current_agreement.packages
 
             r.is do
-
-              r.get do
-                packages.each_with_object([]) do |package, arr|
-                  arr << {
-                      id: package.id,
-                      name: package.name,
-                      workflow: package.ingest_workflow.name
-                  }
-                end
-              end
-
-              r.put do
-
+              packages.each_with_object([]) do |package, arr|
+                arr << {
+                    id: package.id,
+                    name: package.name,
+                    workflow: package.ingest_workflow.name
+                }
               end
             end
 
@@ -264,10 +253,15 @@ module Teneo
                   queue ||= Teneo::IngestServer::Queue.find_by(name: r.params['queue_name'])
                   priority = r.params['priority'] || 100
                   r.halt(412) unless queue
-                  work = Teneo::IngestServer::Work.from_hash(queue_id: queue.id, priority: priority, data: {package: package.id}, work_status_id: 1)
+                  run = package.make_run
+                  work = Teneo::IngestServer::Work.create(
+                      queue: queue, priority: priority, subject: run, action: 'start',
+                      work_status: Teneo::IngestServer::WorkStatus.find_by(name: 'new')
+                  )
                   {
                       work_id: work.id,
                       package_id: package.id,
+                      run_id: run.id,
                       action: 'start'
                   }
                 else
@@ -276,7 +270,46 @@ module Teneo
               end
             end
 
+          end
 
+          # @return [Teneo::DataModel::Organization]
+          def current_package
+            @current_package ||= Teneo::DataModel::Package.find_by(id: session[:package_id])
+          end
+
+          r.halt 412 unless current_package
+
+          r.on 'runs' do
+
+            runs = current_package.runs
+
+            r.is do
+              runs.each_with_object([]) do |run, arr|
+                arr << {
+                    id: run.id,
+                    name: run.name,
+                    status: run.last_status(run).to_s
+                }
+              end
+            end
+
+            r.on Integer do |id|
+              run = run.find_by(id: id)
+              r.halt(404) unless run
+
+              r.get do
+                {
+                    id: run.id,
+                    name: run.name,
+                    start: run.start_date.strftime('%Y/%m/%d %H:%M:%S.%L'),
+                    config: run.config,
+                    options: run.options,
+                    properties: run.properties,
+                    status: run.last_status(run).to_s
+                }
+              end
+
+            end
           end
 
         end

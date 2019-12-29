@@ -40,7 +40,7 @@ module Teneo
         self.email
       end
 
-      def on_jwt_dispatch(token, payload)
+      def on_jwt_dispatch(_token, payload)
         payload[:jit] = self.jit = SecureRandom.base64(18)
         save!
       end

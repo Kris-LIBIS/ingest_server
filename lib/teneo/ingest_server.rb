@@ -10,11 +10,7 @@ module Teneo
 
     autoload :Account, 'teneo/ingest_server/account'
     autoload :App, 'teneo/ingest_server/app'
-    autoload :Queue, 'teneo/ingest_server/queue'
     autoload :SeedLoader, 'teneo/ingest_server/seed_loader'
-    autoload :Work, 'teneo/ingest_server/work'
-    autoload :Worker, 'teneo/ingest_server/worker'
-    autoload :WorkStatus, 'teneo/ingest_server/work_status'
 
   end
 end

@@ -288,7 +288,7 @@ module Teneo
                 arr << {
                     id: run.id,
                     name: run.name,
-                    status: run.last_status(run).to_s
+                    status: run.last_status.to_s
                 }
               end
             end

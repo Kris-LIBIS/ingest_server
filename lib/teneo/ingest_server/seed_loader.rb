@@ -3,7 +3,7 @@
 module Teneo
   module IngestServer
 
-    class SeedLoader < Teneo::DataModel::SeedLoader
+    class SeedLoader < Teneo::Ingester::SeedLoader
 
       def load
         super

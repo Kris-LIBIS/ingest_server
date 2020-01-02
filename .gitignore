@@ -9,3 +9,4 @@
 /db/schema.rb
 /key.bin
 /.rakeTasks
+.rake_tasks~

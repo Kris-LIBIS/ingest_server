@@ -1,0 +1,24 @@
+config:
+#  work_dir: <%= File.join(Teneo::Ingester::ROOT_DIR, 'spec', 'work', 'scrap') %>
+  work_dir: '/nas/vol03/ingester/test/workarea'
+  rosetta_url: 'http://libis-p-rosetta-3w.cc.kuleuven.be:1801'
+  pds_url: 'http://libis-p-rosetta-3w.cc.kuleuven.be:8991'
+  log_dir: <%= File.join(Teneo::Ingester::ROOT_DIR, 'spec', 'work', 'log') %>
+  virusscanner:
+    command: 'clamscan'
+    options:
+      - '--quiet'
+      - '--no-summary'
+      - '--suppress-ok-results'
+  fido_path: '/usr/local/bin/fido'
+  droid_path: '/opt/droid/droid.sh'
+
+mail:
+  host: 'localhost'
+  port: 1025
+
+sidekiq:
+  redis_url: 'redis://localhost:6379/1'
+
+ingester:
+  task_dir: <%= File.join(Teneo::Ingester::ROOT_DIR, 'spec', 'tasks') %>

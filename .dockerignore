@@ -1,0 +1,5 @@
+.vscode
+.idea
+.solargraph.yml
+.gitignore
+Dockerfile
